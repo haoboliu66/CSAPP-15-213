@@ -169,9 +169,9 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-   int mask = 0x80000000
-   return !((x + 1) ^ mask);
+   return !((x + 1) ^ (~(x + 1) + 1));
 }
+
 
 
 
@@ -223,6 +223,8 @@ int isAsciiDigit(int x) {
   return !(x ^ leftMask) | !(x ^ rightMask) | 
  ((((leftMask + (~x + 1)) >> 31) & 1)  &  !(((rightMask + (~x + 1)) >> 31) & 1));
 }
+
+
 /* 
  * conditional - same as x ? y : z 
  *   Example: conditional(2,4,5) = 4
@@ -233,7 +235,8 @@ int isAsciiDigit(int x) {
 int conditional(int x, int y, int z) {
    int f = (x >> 31) & 1;
    ((( f << 31 ) - 1) & y)
-   
+   // f <= 0 => z
+   // f > 0 => y
 
    return 2;
 }
@@ -267,6 +270,7 @@ int isLessOrEqual(int x, int y) {
 int logicalNeg(int x) {
   return 2;
 }
+
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
  *  Examples: howManyBits(12) = 5

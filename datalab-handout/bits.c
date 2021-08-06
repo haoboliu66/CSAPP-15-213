@@ -147,7 +147,6 @@ int bitXor(int x, int y) {
 }
 
 
-
 /* 
  * tmin - return minimum two's complement integer 
  *   Legal ops: ! ~ & ^ | + << >>
@@ -157,7 +156,6 @@ int bitXor(int x, int y) {
 int tmin(void) {
   return 1 << 31;
 }
-
 
 
 //2
@@ -173,9 +171,6 @@ int isTmax(int x) {
 }
 
 
-
-
-
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
  *   where bits are numbered from 0 (least significant) to 31 (most significant)
@@ -189,7 +184,6 @@ int allOddBits(int x) {
   return   !((mask & x) ^ mask) & !(((mask << 8) & x) ^ (mask << 8)) &
   !(((mask << 16) & x) ^ (mask << 16)) & !(((mask << 24) & x) ^ (mask << 24)) ;
 }
-
 
 
 /* 
@@ -234,12 +228,17 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-   int f = (x >> 31) & 1;
-   ((( f << 31 ) - 1) & y)
-   // f <= 0 => z
-   // f > 0 => y
-
-   return 2;
+   // x = 0 => z
+   // -1: 111111....111111
+    
+    int f = ~x - 1;  // 0 or -1
+    
+    /*
+     f == -1 => x != 0
+     f == 0  => x == 0
+    */
+     
+    return (f & y) | (~f & z) ;
 }
 
 

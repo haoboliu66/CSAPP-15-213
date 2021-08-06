@@ -185,8 +185,9 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  int mask = 0x55555555;
-  return !(x ^ mask);
+  int mask = 0x00000055;
+  return   !((mask & x) ^ mask) & !(((mask << 8) & x) ^ (mask << 8)) &
+  !(((mask << 16) & x) ^ (mask << 16)) & !(((mask << 24) & x) ^ (mask << 24)) ;
 }
 
 

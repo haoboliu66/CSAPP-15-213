@@ -270,12 +270,28 @@ int isLessOrEqual(int x, int y) {
 int logicalNeg(int x) {
     // (x)  ^  1 
      /*
-     for non-zero int, process the most significant bit to 1
-     for zero, the most significant bit stays 0
+     Solution 1
+     	for non-zero int, process the most significant bit to 1
+     	for zero, the most significant bit stays 0
      */
    int signBit = ((x | (~x + 1)) >> 31);
    return (signBit & 1) ^ 1 ;
 }
+
+/*
+Solution 2
+	make all bits 1 behind the very most significant 1 in the number
+	if the least significant bit is 1, then the number is not zero
+*/
+int logicalNeg2(int x) {
+  x=x | (x >> 1);
+  x=x | (x >> 2);
+  x=x | (x >> 4);
+  x=x | (x >> 8);
+  x=x | (x >> 16);
+  return x & 0x1 ^ 0x1;
+}
+
 
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -290,7 +306,10 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+    int shift = 0;
+    (1 <<  shift++) - 1
+
+    return 0;
 }
 
 

@@ -231,7 +231,7 @@ int conditional(int x, int y, int z) {
    // x = 0 => z
    // -1: 111111....111111
     
-    int f = ~x - 1;  // 0 or -1
+    int f = !x - 1;  // 0 or -1
     
     /*
      f == -1 => x != 0
@@ -268,7 +268,13 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+    // (x)  ^  1 
+     /*
+     for non-zero int, process the most significant bit to 1
+     for zero, the most significant bit stays 0
+     */
+   int signBit = ((x | (~x + 1)) >> 31);
+   return (signBit & 1) ^ 1 ;
 }
 
 /* howManyBits - return the minimum number of bits required to represent x in

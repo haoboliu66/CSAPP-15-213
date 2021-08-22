@@ -180,9 +180,9 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  int mask = 0x00000055;
-  return   !((mask & x) ^ mask) & !(((mask << 8) & x) ^ (mask << 8)) &
-  !(((mask << 16) & x) ^ (mask << 16)) & !(((mask << 24) & x) ^ (mask << 24)) ;
+  
+  x |= (x >> 1);    /* all bits excluding the most significant bit are 1, which is the max positive int*/
+  return  ((x + 1) >> 31) & 1;
 }
 
 
@@ -231,8 +231,7 @@ int conditional(int x, int y, int z) {
    // x = 0 => z
    // -1: 111111....111111
     
-    int f = !x - 1;  // 0 or -1
-    
+    int f = !x + (~1 + 1);  // 0 or -1
     /*
      f == -1 => x != 0
      f == 0  => x == 0
@@ -240,7 +239,6 @@ int conditional(int x, int y, int z) {
      
     return (f & y) | (~f & z) ;
 }
-
 
 
 /* 
@@ -253,9 +251,8 @@ int conditional(int x, int y, int z) {
 int isLessOrEqual(int x, int y) {
     // x <= y  1
     // x > y   0      x - y > 0
-    return !(x ^ y) | (((x + (~y + 1)) >> 31) & 1);
+    return (!(x ^ y)) | (((x + (~y + 1)) >> 31) & 1);
 }
-
 
 
 //4
@@ -282,16 +279,16 @@ int logicalNeg(int x) {
 Solution 2
 	make all bits 1 behind the very most significant 1 in the number
 	if the least significant bit is 1, then the number is not zero
-*/
+
 int logicalNeg2(int x) {
   x=x | (x >> 1);
   x=x | (x >> 2);
   x=x | (x >> 4);
   x=x | (x >> 8);
   x=x | (x >> 16);
-  return x & 0x1 ^ 0x1;
+  return (x & 0x1) ^ 0x1;
 }
-
+*/
 
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -306,8 +303,6 @@ int logicalNeg2(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-    int shift = 0;
-    (1 <<  shift++) - 1
 
     return 0;
 }

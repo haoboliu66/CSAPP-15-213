@@ -156,11 +156,72 @@ Dump of assembler code for function phase_2:
 
 
 # Phase_3
+## 
+
+```assembly
+(gdb) disassemble phase_3
+Dump of assembler code for function phase_3:
+=> 0x0000000000400f43 <+0>:	sub    $0x18,%rsp
+0x0000000000400f47 <+4>:	lea    0xc(%rsp),%rcx
+0x0000000000400f4c <+9>:	lea    0x8(%rsp),%rdx
+0x0000000000400f51 <+14>:	mov    $0x4025cf,%esi
+0x0000000000400f56 <+19>:	mov    $0x0,%eax
+0x0000000000400f5b <+24>:	callq  0x400bf0 <__isoc99_sscanf@plt>
+0x0000000000400f60 <+29>:	cmp    $0x1,%eax  # %eax必须大于1
+0x0000000000400f63 <+32>:	jg     0x400f6a <phase_3+39>
+0x0000000000400f65 <+34>:	callq  0x40143a <explode_bomb>
+0x0000000000400f6a <+39>:	cmpl   $0x7,0x8(%rsp) # 0x8(%rsp)必须小于7
+0x0000000000400f6f <+44>:	ja     0x400fad <phase_3+106>
+0x0000000000400f71 <+46>:	mov    0x8(%rsp),%eax
+0x0000000000400f75 <+50>:	jmpq   *0x402470(,%rax,8)
+0x0000000000400f7c <+57>:	mov    $0xcf,%eax   # 207 => $eax
+0x0000000000400f81 <+62>:	jmp    0x400fbe <phase_3+123>
+0x0000000000400f83 <+64>:	mov    $0x2c3,%eax
+0x0000000000400f88 <+69>:	jmp    0x400fbe <phase_3+123>
+0x0000000000400f8a <+71>:	mov    $0x100,%eax
+0x0000000000400f8f <+76>:	jmp    0x400fbe <phase_3+123>
+0x0000000000400f91 <+78>:	mov    $0x185,%eax
+0x0000000000400f96 <+83>:	jmp    0x400fbe <phase_3+123>
+0x0000000000400f98 <+85>:	mov    $0xce,%eax
+0x0000000000400f9d <+90>:	jmp    0x400fbe <phase_3+123>
+0x0000000000400f9f <+92>:	mov    $0x2aa,%eax
+0x0000000000400fa4 <+97>:	jmp    0x400fbe <phase_3+123>
+0x0000000000400fa6 <+99>:	mov    $0x147,%eax
+0x0000000000400fab <+104>:	jmp    0x400fbe <phase_3+123>
+0x0000000000400fad <+106>:	callq  0x40143a <explode_bomb>
+0x0000000000400fb2 <+111>:	mov    $0x0,%eax
+0x0000000000400fb7 <+116>:	jmp    0x400fbe <phase_3+123>
+0x0000000000400fb9 <+118>:	mov    $0x137,%eax
+0x0000000000400fbe <+123>:	cmp    0xc(%rsp),%eax
+0x0000000000400fc2 <+127>:	je     0x400fc9 <phase_3+134>
+0x0000000000400fc4 <+129>:	callq  0x40143a <explode_bomb>
+0x0000000000400fc9 <+134>:	add    $0x18,%rsp
+0x0000000000400fcd <+138>:	retq
+```
+
+0x0000000000400f6a <+39>:	cmpl   $0x7,0x8(%rsp)   意味着 0x8(%rsp)必须小于7
+0x0000000000400f6f <+44>:	ja     0x400fad <phase_3+106>  ja意味着是unsigned value之间比较, 所以 0x8(%rsp)的范围是[0,7)
+
+
+**phase_3 solution**:
+
+0 207
+
+1 311
+
+2 to be continued
+
+3 to be continued
+
+4 to be continued
+
+5 to be continued
+
+6 to be continued
+
 
 
 # Phase_4
-
-## 
 
 ```assembly
 (gdb) disassemble phase_4
@@ -245,6 +306,7 @@ Dump of assembler code for function func4:
 > **When shifting an unsigned value, the >> operator in C is a logical shift.** **When shifting a signed value, the >> operator is an arithmetic shift**.
 
 ```c
+source code could be the following:
 int func4(int x, int y, int z){
 	int m = z;	// mov    %edx,%eax
   m = z - y;  // sub    %esi,%eax
@@ -299,8 +361,6 @@ y = 0, z = 14, 计算得出 n = 7, 所以 x = 7
 
 # Phase_5
 
-## 
-
 ```assembly
 (gdb) disassemble phase_5
 Dump of assembler code for function phase_5:
@@ -343,8 +403,6 @@ Dump of assembler code for function phase_5:
 0x00000000004010f2 <+144>:	pop    %rbx
 0x00000000004010f3 <+145>:	retq
 ```
-
-
 
 先看这个函数
 
@@ -404,7 +462,6 @@ Dump of assembler code for function strings_not_equal:
 ```
 
 
-
 然后观察这一段指令可知: 进入这段指令最开始时, %rax的值为0, 然后每次加1, 这段指令末尾还会进行和6的比较, 即判断目前走过的长度, 很明显是一个遍历string的行为; 在遍历过程中, 会对每一个字符进行一定的处理, 处理后的字符要和0x40245e位置的字符串相等, 我们很容易可知0x40245e字符串内容为flyers, 所以我们要看这段指令是如何对每个字符进行操作的, 逆推回去即可得到最初的字符串
 
 ```assembly
@@ -418,7 +475,6 @@ Dump of assembler code for function strings_not_equal:
 0x00000000004010a8 <+70>:	cmp    $0x6,%rax
 0x00000000004010ac <+74>:	jne    0x40108b <phase_5+41>
 ```
-
 
 
 这段指令需要的关注的点:
@@ -729,8 +785,7 @@ e.g. 如果是数组的第二个数字a, 对应的%rsi就是4, 这个数字就�
 0x0000000000401203 <+271>:	retq
 ```
 
-
-
+**phase_6 solution: 4 3 2 1 6 5**
 
 
 

@@ -143,7 +143,11 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return (x & y) & (~x & ~y);
+
+	// ~(x&y): bits that could be 1
+	// only 1 and 0 combo remains the same after ~ operation
+
+  return ~(~x & ~y) & ~(x & y);
 }
 
 
@@ -167,9 +171,9 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-   return !((x + 1) ^ (~(x + 1) + 1));
+   int m = 0x7fffffff;
+   return !(x ^ m);
 }
-
 
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -180,9 +184,8 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  
-  x |= (x >> 1);    /* all bits excluding the most significant bit are 1, which is the max positive int*/
-  return  ((x + 1) >> 31) & 1;
+  int f = 0xAAAAAAAA;
+  return !((x & f) ^ f);
 }
 
 
@@ -196,7 +199,6 @@ int allOddBits(int x) {
 int negate(int x) {
   return ~x + 1;
 }
-
 
 
 //3
@@ -249,12 +251,14 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-    // x <= y  1
-    // x > y   0      x - y > 0
-    return (!(x ^ y)) | (((x + (~y + 1)) >> 31) & 1);
+
+int diff_sgn = !(x>>31)^!(y>>31);      //is 1 when signs are different
+int a = diff_sgn & (x>>31);            //diff signs and x is neg, gives 1
+int b = !diff_sgn & !((y+(~x+1))>>31); //same signs and difference is pos or = 0, gives 1
+int f = a | b;
+return f;
+
 }
-
-
 //4
 /* 
  * logicalNeg - implement the ! operator, using all of 

@@ -27,7 +27,7 @@ Dump of assembler code for function phase_1:
 
 
 
-To make je jump to <phase_1 + 23>, %eax has to be 0
+To make je at <+16> jump to <phase_1 + 23>, %eax has to be 0
 
 ```assembly
 (gdb) disassemble
@@ -42,7 +42,7 @@ Dump of assembler code for function phase_1:
 0x0000000000400efb <+27>:	retq
 ```
 
-<strings_not_equal> 返回值必须是0
+%eax must be 0, meaning <strings_not_equal> must return 0
 
 - 两个string比较必须是完全相等, 才能返回0; 所以我们只需要查看第二个传入的参数, 即以%rsi地址开头的string是什么, 就是我们要的答案
   - 方法1: 直接打印    (gdb) print (char*)$rsi

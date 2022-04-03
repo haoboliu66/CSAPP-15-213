@@ -95,3 +95,64 @@ Dump of assembler code for function strings_not_equal:
 # Phase_2
 
 
+
+```assembly
+(gdb) disassemble phase_2
+Dump of assembler code for function phase_2:
+=> 0x0000000000400efc <+0>:	push   %rbp
+0x0000000000400efd <+1>:	push   %rbx
+0x0000000000400efe <+2>:	sub    $0x28,%rsp
+0x0000000000400f02 <+6>:	mov    %rsp,%rsi
+0x0000000000400f05 <+9>:	callq  0x40145c <read_six_numbers>
+0x0000000000400f0a <+14>:	cmpl   $0x1,(%rsp)      # (%rsp) 必须是1, 才能避免执行<explode_bomb>
+0x0000000000400f0e <+18>:	je     0x400f30 <phase_2+52>
+0x0000000000400f10 <+20>:	callq  0x40143a <explode_bomb>
+0x0000000000400f15 <+25>:	jmp    0x400f30 <phase_2+52>
+0x0000000000400f17 <+27>:	mov    -0x4(%rbx),%eax
+0x0000000000400f1a <+30>:	add    %eax,%eax
+0x0000000000400f1c <+32>:	cmp    %eax,(%rbx)
+0x0000000000400f1e <+34>:	je     0x400f25 <phase_2+41>
+0x0000000000400f20 <+36>:	callq  0x40143a <explode_bomb>
+0x0000000000400f25 <+41>:	add    $0x4,%rbx
+0x0000000000400f29 <+45>:	cmp    %rbp,%rbx
+0x0000000000400f2c <+48>:	jne    0x400f17 <phase_2+27>
+0x0000000000400f2e <+50>:	jmp    0x400f3c <phase_2+64>
+0x0000000000400f30 <+52>:	lea    0x4(%rsp),%rbx
+0x0000000000400f35 <+57>:	lea    0x18(%rsp),%rbp
+0x0000000000400f3a <+62>:	jmp    0x400f17 <phase_2+27>
+0x0000000000400f3c <+64>:	add    $0x28,%rsp
+0x0000000000400f40 <+68>:	pop    %rbx
+0x0000000000400f41 <+69>:	pop    %rbp
+0x0000000000400f42 <+70>:	retq
+```
+
+0x0000000000400f0a <+14>:	cmpl   $0x1,(%rsp)      意味着 (%rsp) 必须是1, 才能避免<explode_bomb>
+
+所以第一个值是1
+
+
+
+0x0000000000400f17 <+27>:	mov    -0x4(%rbx),%eax  意味着 mem[rbx - 4]的值放到%eax, 然后
+
+0x0000000000400f1a <+30>:	add    %eax,%eax    %eax自身翻倍
+
+0x0000000000400f1c <+32>:	cmp    %eax,(%rbx)   %eax翻倍后 必须要等于 (%rbx)才不能不触发<explode_bomb>
+
+此时 %eax的值来源于  -0x4(%rbx), 也即 %rsp的值, 也就是1, 翻倍后%eax的值是2, 必须等于%rbx所指的值,
+
+所以 (%rbx) 的值是2
+
+
+
+然后 %rbx的值会进行加4, 所以可以预见到的是, %rbx的地址一直向栈底方向走, 直到执行到指令
+
+0x0000000000400f29 <+45>:	cmp    %rbp,%rbx  导致0x0000000000400f2c <+48>:	jne    0x400f17 <phase_2+27> 不再成立之前, 
+
+%rbx一直都是每次加4, 然后进行%eax自身翻倍, 并比较%eax与%rbx的值
+
+
+**phase_2最后的结果是1 2 4 8 16 32**
+
+
+# Phase_3
+

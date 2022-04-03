@@ -1,9 +1,10 @@
 
-# Bomb Lab
+Bomb Lab
+=
 
-## Phase_1
+Phase_1
+-
 
-## phase_1
 
 ```assembly
 (gdb) disassemble

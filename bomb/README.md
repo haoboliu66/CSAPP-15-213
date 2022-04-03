@@ -522,14 +522,11 @@ read_six_numbers是查验输入数据的值, 如果有6个%d, 返回值是6, 如
 
 下面这一段指令的逻辑是: 对数组进行一个嵌套循环, 判断的目的是保证: 
 
+假设数组内容是[a, b, c, d, e, f]
 - bcdef不和a相等
-
 - cdef不和b相等
-
 - def不和c相等
-
 - ef不和d相等
-
 - f不和e相等
 
 ```assembly
@@ -560,8 +557,12 @@ read_six_numbers是查验输入数据的值, 如果有6个%d, 返回值是6, 如
 
 
 
-# Common commands in gdb
-## Reference
+
+# Reference
+## Self-study lab 
+http://csapp.cs.cmu.edu/3e/labs.html
+
+## Common commands in gdb
 https://sourceware.org/gdb/onlinedocs/gdb/Output-Formats.html
 
 layout reg

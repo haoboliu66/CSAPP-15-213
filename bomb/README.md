@@ -482,3 +482,52 @@ Dump of assembler code for function strings_not_equal:
 
 
 **phase_5 solution:  ionefg**
+
+# phase_6
+
+
+
+
+# Common commands in gdb
+## Reference
+https://sourceware.org/gdb/onlinedocs/gdb/Output-Formats.html
+
+layout reg
+
+b func_name - set break point at function
+
+b *address - set break point at address
+
+info b - show all break points
+
+delete - remove all break points
+
+
+c - resume execution, until hitting the next break point
+
+nexti / ni - Execute one machine instruction, but if it is a function call, proceed until the function returns.
+
+finish/fin - return from current stack frame(return current function call)
+
+return - drop current frame
+
+
+**view data in memory at a certain address**
+
+x/x $rsp - Print as integer in hexadecimal
+
+x/d $rsp - Print as integer in signed decimal
+
+x/s $rsp - Regard as a string
+
+
+x/6wx $rsp - 查看rsp起始往栈底方向6个 words的数据, x表示用hexadecimal格式输出
+
+
+打印带偏移的地址数据
+
+(gdb) print *(int *) ($rsp+8)
+
+
+
+

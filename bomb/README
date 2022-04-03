@@ -2,7 +2,7 @@
 Bomb Lab
 =======
 
-#Phase_1
+# Phase_1
 
 
 
@@ -92,6 +92,6 @@ Dump of assembler code for function strings_not_equal:
    0x00000000004013a1 <+105>:	retq
 ```
 
-#Phase_2
+# Phase_2
 
 

@@ -747,6 +747,10 @@ e.g. 如果是数组的第二个数字a, 对应的%rsi就是4, 这个数字就�
 
 
 # Reference
+
+## Lectures
+https://www.cs.cmu.edu/afs/cs/academic/class/15213-f16/www/schedule.html
+
 ## Self-study lab 
 http://csapp.cs.cmu.edu/3e/labs.html
 

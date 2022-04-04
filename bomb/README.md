@@ -785,13 +785,13 @@ x/d $rsp - Print as integer in signed decimal
 
 x/s $rsp - Regard as a string
 
-
 x/6wx $rsp - 查看rsp起始往栈底方向6个 words的数据, x表示用hexadecimal格式输出
 
 
-打印带偏移的地址数据
-
+打印带偏移的地址数据 e.g mov 0x8(%rsp) %rdi
 (gdb) print *(int *) ($rsp+8)
+or
+(gbd) x/d $rsp+8
 
 
 

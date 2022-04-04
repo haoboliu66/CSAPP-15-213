@@ -49,48 +49,7 @@ Dump of assembler code for function phase_1:
   - 方法2: 在phase_1的 stack frame内, 根据调用strings_not_equal前的指令:  mov $0x402400,%esi, 就可以知道目标string的起始地址是0x402400, 就可以直接打印(gdb) print (char*) 0x402400
 - 结果都是: **Border relations with Canada have never been better.**
 
-```assembly
-(gdb) disassemble
-Dump of assembler code for function strings_not_equal:
-=> 0x0000000000401338 <+0>:	push   %r12
-   0x000000000040133a <+2>:	push   %rbp
-   0x000000000040133b <+3>:	push   %rbx
-   0x000000000040133c <+4>:	mov    %rdi,%rbx
-   0x000000000040133f <+7>:	mov    %rsi,%rbp
-   0x0000000000401342 <+10>:	callq  0x40131b <string_length>
-   0x0000000000401347 <+15>:	mov    %eax,%r12d
-   0x000000000040134a <+18>:	mov    %rbp,%rdi
-   0x000000000040134d <+21>:	callq  0x40131b <string_length>
-   0x0000000000401352 <+26>:	mov    $0x1,%edx
-   0x0000000000401357 <+31>:	cmp    %eax,%r12d    # compare length of the two strings 
-   0x000000000040135a <+34>:	jne    0x40139b <strings_not_equal+99>
-   0x000000000040135c <+36>:	movzbl (%rbx),%eax
-   0x000000000040135f <+39>:	test   %al,%al
-   0x0000000000401361 <+41>:	je     0x401388 <strings_not_equal+80>
-   0x0000000000401363 <+43>:	cmp    0x0(%rbp),%al
-   0x0000000000401366 <+46>:	je     0x401372 <strings_not_equal+58>
-   0x0000000000401368 <+48>:	jmp    0x40138f <strings_not_equal+87>
-   0x000000000040136a <+50>:	cmp    0x0(%rbp),%al
-   0x000000000040136d <+53>:	nopl   (%rax)
-   0x0000000000401370 <+56>:	jne    0x401396 <strings_not_equal+94>
-   0x0000000000401372 <+58>:	add    $0x1,%rbx
-   0x0000000000401376 <+62>:	add    $0x1,%rbp
-   0x000000000040137a <+66>:	movzbl (%rbx),%eax
-   0x000000000040137d <+69>:	test   %al,%al
-   0x000000000040137f <+71>:	jne    0x40136a <strings_not_equal+50>
-   0x0000000000401381 <+73>:	mov    $0x0,%edx
-   0x0000000000401386 <+78>:	jmp    0x40139b <strings_not_equal+99>
-   0x0000000000401388 <+80>:	mov    $0x0,%edx
-   0x000000000040138d <+85>:	jmp    0x40139b <strings_not_equal+99>
-   0x000000000040138f <+87>:	mov    $0x1,%edx
-   0x0000000000401394 <+92>:	jmp    0x40139b <strings_not_equal+99>
-   0x0000000000401396 <+94>:	mov    $0x1,%edx
-   0x000000000040139b <+99>:	mov    %edx,%eax
-   0x000000000040139d <+101>:	pop    %rbx
-   0x000000000040139e <+102>:	pop    %rbp
-   0x000000000040139f <+103>:	pop    %r12
-   0x00000000004013a1 <+105>:	retq
-```
+
 
 **phase_1 solution: Border relations with Canada have never been better.**
 
@@ -132,7 +91,6 @@ Dump of assembler code for function phase_2:
 所以第一个值是1
 
 
-
 0x0000000000400f17 <+27>:	mov    -0x4(%rbx),%eax  意味着 mem[rbx - 4]的值放到%eax, 然后
 
 0x0000000000400f1a <+30>:	add    %eax,%eax    %eax自身翻倍
@@ -156,7 +114,6 @@ Dump of assembler code for function phase_2:
 
 
 # Phase_3
-## 
 
 ```assembly
 (gdb) disassemble phase_3

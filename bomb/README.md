@@ -749,13 +749,17 @@ e.g. 如果是数组的第二个数字a, 对应的%rsi就是4, 这个数字就�
 # Reference
 
 ## Lectures
+
 https://www.cs.cmu.edu/afs/cs/academic/class/15213-f16/www/schedule.html
 
-## Self-study lab 
+## Self-study lab
+
 http://csapp.cs.cmu.edu/3e/labs.html
 
 ## Common commands in gdb
+
 https://sourceware.org/gdb/onlinedocs/gdb/Output-Formats.html
+
 
 layout reg
 
@@ -789,8 +793,11 @@ x/6wx $rsp - 查看rsp起始往栈底方向6个 words的数据, x表示用hexade
 
 
 打印带偏移的地址数据 e.g mov 0x8(%rsp) %rdi
+
 (gdb) print *(int *) ($rsp+8)
+
 or
+
 (gbd) x/d $rsp+8
 
 

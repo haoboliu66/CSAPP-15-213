@@ -263,7 +263,7 @@ Dump of assembler code for function func4:
 > **When shifting an unsigned value, the >> operator in C is a logical shift.** **When shifting a signed value, the >> operator is an arithmetic shift**.
 
 ```c
-source code could be the following:
+// source code could be the following:
 int func4(int x, int y, int z){
 	int m = z;	// mov    %edx,%eax
   m = z - y;  // sub    %esi,%eax
@@ -289,7 +289,7 @@ int func4(int x, int y, int z){
 }
 ```
 
-只要让让n == x, 即可满足 func4的返回值是0
+只要让n == x, 即可满足 func4的返回值是0
 
 所以根据func4开头的一堆运算, 可以得出n的值
 

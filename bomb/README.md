@@ -265,7 +265,7 @@ Dump of assembler code for function func4:
 ```c
 // source code could be the following:
 int func4(int x, int y, int z){
-	int m = z;	// mov    %edx,%eax
+  int m = z;	// mov    %edx,%eax
   m = z - y;  // sub    %esi,%eax
   int n = m;      // mov    %eax,%ecx
   n = n >>> 31 // shr    $0x1f,%ecx

@@ -44,9 +44,9 @@ Dump of assembler code for function phase_1:
 
 %eax must be 0, meaning <strings_not_equal> must return 0
 
-- 两个string比较必须是完全相等, 才能返回0; 所以我们只需要查看第二个传入的参数, 即以%rsi地址开头的string是什么, 就是我们要的答案
-  - 方法1: 直接打印    (gdb) print (char*)$rsi
-  - 方法2: 查看phase_1, 调用strings_not_equal前的指令:  mov  $0x402400,%esi, 就可以知道目标string的起始地址是0x402400, 就可以直接打印    (gdb) print (char*) 0x402400
+- 两个string比较必须是完全相等, 才能返回0; 所以根据mov $0x402400,%esi, 很明显是函数传参; 因此我们只需要查看第二个传入的参数, 即以%esi地址开头的string是什么, 就是我们要的答案
+  - 方法1: 进入strings_not_equal的stack frame内, 直接打印(gdb) print (char*)$rsi
+  - 方法2: 在phase_1的 stack frame内, 根据调用strings_not_equal前的指令:  mov $0x402400,%esi, 就可以知道目标string的起始地址是0x402400, 就可以直接打印(gdb) print (char*) 0x402400
 - 结果都是: **Border relations with Canada have never been better.**
 
 ```assembly

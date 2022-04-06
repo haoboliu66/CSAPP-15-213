@@ -639,7 +639,7 @@ read_six_numbers是查验输入数据的值, 如果有6个%d, 返回值是6, 如
 
 
 ```c
-# source code could be like the following
+// source code could be like the following
 int phase_6(){
   int r;
   int arr[] = {1,2,3,4,5,6};
@@ -664,7 +664,7 @@ int phase_6(){
 }
 ```
 
-使用 1 2 3 4 5 6 数组作为例子走出的结果: 从0x6032d0这个值为地址往后存着数值
+使用 1 2 3 4 5 6 数组作为例子走出的结果: 从0x6032d0这个值为地址往后存储着数值
 
 每次放到%rdx的数据和其对应的于地址0x6032d0的offset分别是:
 | offset | number   |

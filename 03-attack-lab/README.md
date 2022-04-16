@@ -191,21 +191,65 @@ ec 17 40 00 c3 00 00 00
 90 dc 61 55 00 00 00 00  # ret 跳转%rsp+24
 ```
 
-%rsp+24是可以利用的极限地址了, 因为buffer空间不够了
+%rsp+24是可以利用的极限地址了, 如果注入的指令从%rsp+32开始, buffer的空间不够放下所有要注入的指令
 
 
 
-测试endian
+## 测试endian
 
 ```assembly
-00000000004017a8 <getbuf>:
-4017a8:       48 83 ec 28             sub    $0x28,%rsp
-4017ac:       48 89 e7                mov    %rsp,%rdi
-4017af:       e8 8c 02 00 00          callq  401a40 <Gets>
+00000000000005fa <m>:
+ 5fa:	55                   	push   %rbp
+ 5fb:	48 89 e5             	mov    %rsp,%rbp
+ 5fe:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+ 602:	89 75 f4             	mov    %esi,-0xc(%rbp)
+ 605:	48 83 45 f8 01       	addq   $0x1,-0x8(%rbp)
+ 60a:	8b 45 f4             	mov    -0xc(%rbp),%eax
+ 60d:	83 c0 0a             	add    $0xa,%eax
+ 610:	5d                   	pop    %rbp
+ 611:	c3                   	retq
+
+(gdb) disasse m
+Dump of assembler code for function m:
+0x00005555554005fa <+0>:	push   %rbp
+0x00005555554005fb <+1>:	mov    %rsp,%rbp
+0x00005555554005fe <+4>:	mov    %rdi,-0x8(%rbp)
+0x0000555555400602 <+8>:	mov    %esi,-0xc(%rbp)
+0x0000555555400605 <+11>:	addq   $0x1,-0x8(%rbp)
+0x000055555540060a <+16>:	mov    -0xc(%rbp),%eax
+0x000055555540060d <+19>:	add    $0xa,%eax
+0x0000555555400610 <+22>:	pop    %rbp
+0x0000555555400611 <+23>:	retq
 ```
 
-x/x 0x4017a8 => 0x28ec8348
+x/x此类操作默认是读一个word(4 bytes), 等同于x/xw, 如果要读8bytes, 指令是x/xg
 
-x/x 0x4017a9 => 0x4828ec83
+x/x 0x00005555554005fa =>  0xe5894855
 
-x/x 0x4017aa => 0x894828ec
+x/x 0x00005555554005fb => 0x48e58948
+
+可以看到的是, 我读了一个高地址的数据, 然后55没了, 也就意味着, 在内存中 55 48 89 e5这个顺序是从低地址到高地址的
+
+即, 在objdump我们看到的指令值, 就是从低地址到高地址依次排列, 也就是按着代码显示的55 48 89 e5这样从左到右的顺序; 
+
+但是在gbd输出时, 可以很明显看到它是反向输出的, 即高地址在前
+
+所以objdump出来的顺序, 就是little endian, 可以直接作为injected code
+
+
+
+
+
+%rdi里存的是我自己定义的char *  "abcdefg"
+
+x/s $rdi 	=> "abcdefg"
+
+x/s $rdi+1 => "bcdefg"
+
+可以看出, string在内存中排放的方法, 首地址在低地址, 依次排列到高地址结束; 也就是, 想象在栈的那张图上, string是从底下向顶部排列的
+
+
+# Level3
+
+
+

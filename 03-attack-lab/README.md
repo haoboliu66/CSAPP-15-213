@@ -325,7 +325,7 @@ retq
 
 
 
-<span style="color:red">不同点和重点是: </span>当我们覆盖了返回地址并调用retq时, 这时%rsp已经回到了getBuf stack frame的底部, 然后跳转到原%rsp位置 (0x5561DC78) 执行注入的指令, 调用了touch3, 会发生的事情是: touch3的执行过程中会调用函数hexmatch, hexmatch又调用了strncmp, 所以%rsp会一直向下减小, 会覆盖我们写在原getBuf stack frame的内容。 那么如何选择string的存放位置？
+<span style="color:red">不同点和重点是: </span> 当我们覆盖了返回地址并调用retq时, 这时%rsp已经回到了getBuf stack frame的底部, 然后跳转到原%rsp位置 (0x5561DC78) 执行注入的指令, 调用了touch3, 会发生的事情是: touch3的执行过程中会调用函数hexmatch, hexmatch又调用了strncmp, 所以%rsp会一直向下减小, 会覆盖我们写在原getBuf stack frame的内容。 那么如何选择string的存放位置？
 
 
 

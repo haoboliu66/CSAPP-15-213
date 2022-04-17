@@ -7,9 +7,9 @@
 Attack Lab
 =======
 
-## Part I: Code Injection Attacks
+# Part I: Code Injection Attacks
 
-### Phase1
+## Phase1
 
 Task: to get ctarget to execute touch1 instead of test when getbuf executes its ret statement
 
@@ -74,7 +74,7 @@ c0 17 40 00
 ```
 ---
 
-### Phase2
+## Phase2
 
 Task: to get ctarget to execute touch2 instead of test when getbuf executes its ret statement
 
@@ -196,7 +196,7 @@ ec 17 40 00 c3 00 00 00
 
 ---
 
-## 测试endian
+### 测试endian
 
 ```assembly
 00000000000005fa <m>:
@@ -239,8 +239,6 @@ x/x 0x00005555554005fb => 0x48e58948
 
 
 
-
-
 %rdi里存的是我自己定义的char *  "abcdefg"
 
 x/s $rdi 	=> "abcdefg"
@@ -251,7 +249,7 @@ x/s $rdi+1 => "bcdefg"
 
 ---
 
-### Phase3
+## Phase3
 
 ```assembly
 /* Compare string to hex represention of unsigned value */
@@ -414,9 +412,9 @@ fa 18 40 00 00 00 00 00
 
 ---
 
-## Part II: Return-Oriented Programming
+# Part II: Return-Oriented Programming
 
-### Phase4
+## Phase4
 
 重复phase2的操作, 调用touch2, 即:
 
@@ -532,8 +530,6 @@ ec 17 40 00 00 00 00 00  # 再执行ret, 就跳转touch2
 ```
 
 ---
-
-### Phase5
 
 
 

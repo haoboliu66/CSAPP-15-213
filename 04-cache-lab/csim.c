@@ -31,7 +31,7 @@ struct Cache{
 /* init struct, allocate memory */
 void init_cache(struct Cache *cache, int s, int E);
 void init_set(struct Set *set, int E);
-void init_line(struct Set *set, unsigned int tag)
+void init_line(struct Set *set, unsigned int tag);
 
 /*  address handle  */
 int get_block_offset(unsigned int address, int b);

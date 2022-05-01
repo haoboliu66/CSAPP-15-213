@@ -20,8 +20,22 @@ int is_transpose(int M, int N, int A[N][M], int B[M][N]);
  *     be graded. 
  */
 char transpose_submit_desc[] = "Transpose submission";
-void transpose_submit(int M, int N, int A[N][M], int B[M][N])
-{
+void transpose_submit(int M, int N, int A[N][M], int B[M][N]){
+
+    for(int i = 0; i < N; i += 4){
+        
+        for(int j = 0; j < M; j += 4){
+            
+            for(int row = i; row < i + 4; row++){
+                
+                for(int col = j; col < j + 4; col++){
+                    B[col][row] = A[row][col];
+                    
+                }
+            }
+        }
+    }
+
 }
 
 /* 
@@ -59,7 +73,7 @@ void registerFunctions()
     registerTransFunction(transpose_submit, transpose_submit_desc); 
 
     /* Register any additional transpose functions */
-    registerTransFunction(trans, trans_desc); 
+   // registerTransFunction(trans, trans_desc); 
 
 }
 

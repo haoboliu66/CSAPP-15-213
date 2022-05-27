@@ -191,10 +191,10 @@ void eval(char *cmdline){
     sigaddset(&mask, SIGTSTP);
 
     sigprocmask(SIG_BLOCK, &mask, &prev_mask);
-
     /* parent must block SIGCHLD before fork;
        if not, when the parent adds this new child to the jobs list
-       meanwhile another child terminates, race condition happens to the jobs list
+       meanwhile another child terminates(then deletejob is called), race condition happens to the jobs list
+       - See CSAPP 8.5.6
      */
     if((cpid = Fork()) == 0){ // child
 
@@ -217,17 +217,12 @@ void eval(char *cmdline){
         Execve(argv[0], argv, environ);
 
     }else{
-
         addjob(jobs, cpid, (bg? BG: FG), cmdline);
 
         /* must unblock SIGCHLD in parent after addjob, 
         otherwise when children terminate, SIGCHLD cannot be received by parent process, sigchld_handler cannot be triggered 
         */
-  
         sigprocmask(SIG_SETMASK, &prev_mask, NULL);
-
-        // printf("parent send TSTP to child: %d\n", cpid);
-        // Kill(-getpgid(cpid), SIGTSTP);
 
         if(bg){
              printf("[%d] (%d) %s", pid2jid(cpid), cpid, cmdline);
@@ -253,7 +248,7 @@ void waitfg(pid_t pid){
    pid_t fg_job_pid;
     while( (fg_job_pid = fgpid(jobs)) != 0 
     && (fg_job = getjobpid(jobs, fg_job_pid)) != NULL
-   /* && fg_job->state == FG*/){
+    && fg_job->state == FG){
         sleep(1);
     }
 }
@@ -394,7 +389,7 @@ void sigchld_handler(int sig){
         if(WIFSTOPPED(status)){
             struct job_t *stopped_job = getjobpid(jobs, cpid);
             stopped_job->state = ST;
-            printf("stopped id: %d\n", stopped_job->pid);
+            printf("Job [%d] (%d) stopped by signal %d\n", stopped_job->jid, stopped_job->pid, SIGTSTP);
         }
         if(WIFSIGNALED(status)){
             deletejob(jobs, cpid);
@@ -457,7 +452,6 @@ void sigtstp_handler(int sig){
     struct job_t *fg_job = getjobpid(jobs, foreground_pid);
     if(fg_job != NULL && fg_job->state == FG){
         pid_t pgid = getpgid(fg_job->pid);
-        printf("Job [%d] (%d) stopped by signal %d\n", fg_job->jid, fg_job->pid, sig);
         Kill(-pgid, SIGTSTP);
     }
 }

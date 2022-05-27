@@ -27,7 +27,8 @@ int main(int argc, char **argv)
        sleep(1);
 	
     pid = getpid(); 
-
+    printf("main process id: %d\n", pid);
+    printf("id group: %d\n", getpgid(pid));
     if (kill(-pid, SIGTSTP) < 0)
        fprintf(stderr, "kill (tstp) error");
 
